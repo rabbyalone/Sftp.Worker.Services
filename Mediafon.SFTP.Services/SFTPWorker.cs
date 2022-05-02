@@ -18,13 +18,13 @@ namespace Mediafon.SFTP.Services
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
+                _logger.LogInformation("Sftp service running at: {time}", DateTimeOffset.Now);
 
                 using var scope = _serviceProvider.CreateScope();
                 IProcessSftp _processSftpFiles = scope.ServiceProvider.GetRequiredService<IProcessSftp>();
                 await _processSftpFiles.ProcessFiles();
 
-                await Task.Delay(1000, stoppingToken);                
+                await Task.Delay(60000, stoppingToken);                
             }
         }
     }

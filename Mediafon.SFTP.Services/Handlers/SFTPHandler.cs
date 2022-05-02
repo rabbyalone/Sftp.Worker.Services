@@ -12,12 +12,12 @@ namespace Mediafon.SFTP.Services.Handlers
     public class SFTPHandler : ISFTPHandler
     {
         private readonly IOptions<SftpSettings> _sftpSettings;
-        private readonly ILogger<ProcessSftp> _logger;
+        private readonly ILogger<SFTPHandler> _logger;
         private readonly IHostEnvironment _hostingEnv;
         private SftpClient sftp;
         public bool Connected { get { return sftp.IsConnected; } }
 
-        public SFTPHandler(IOptions<SftpSettings> sftpSettings, ILogger<ProcessSftp> logger, IHostEnvironment hostingEnv)
+        public SFTPHandler(IOptions<SftpSettings> sftpSettings, ILogger<SFTPHandler> logger, IHostEnvironment hostingEnv)
         {
             _sftpSettings = sftpSettings;
             _logger = logger;
@@ -95,13 +95,14 @@ namespace Mediafon.SFTP.Services.Handlers
                     using (Stream file1 = File.OpenWrite(localPath + remoteFileName))
                     {
                         sftp.DownloadFile(_sftpSettings.Value.SftpFolderLocation + remoteFileName, file1);
+                        _logger.LogInformation($"File downloaded at {localPath}");
                     }
                     var sftpFileInfo = new SftpFileInfo
                     {
                         FileName = remoteFileName,
                         LocalFilePath = $"{localPath}/{remoteFileName}",
                         LastWriteTime = file.LastWriteTimeUtc,
-                        LastAccessTime = file.LastAccessTime,
+                        LastAccessTime = file.LastAccessTimeUtc,
                         FileDowloadTime = DateTime.UtcNow,
                         RemoteFilePath = _sftpSettings.Value.SftpFolderLocation,
                         Id = Guid.NewGuid().ToString(),

@@ -14,10 +14,13 @@ namespace Mediafon.SFTP.Services.Services
     {
         private readonly ISFTPHandler _handler;
         private readonly IRepository<SftpFileInfo> _repo;
-        public ProcessSftp(IRepository<SftpFileInfo> repo, ISFTPHandler handler)
+        private readonly ILogger<ProcessSftp> _logger;
+
+        public ProcessSftp(IRepository<SftpFileInfo> repo, ISFTPHandler handler, ILogger<ProcessSftp> logger)
         {
             _repo = repo;
             _handler = handler;
+            _logger = logger;
         }
         public async Task<bool> ProcessFiles()
         {
@@ -44,7 +47,9 @@ namespace Mediafon.SFTP.Services.Services
                         //Db entry of downloaded sftpFiles
                         foreach (SftpFileInfo fileInfo in sftpFileInfos)
                         {
-                            await _repo.CreateAsync(fileInfo);
+                            var created = await _repo.CreateAsync(fileInfo);
+                            _logger.LogInformation($"Created sftp file info entry in database with identifier {created.Id}");
+
                         }
                     }
                 }     
