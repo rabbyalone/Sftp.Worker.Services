@@ -1,6 +1,7 @@
 ﻿
 
 using Mediafon.SFTP.Services.Config;
+using Mediafon.SFTP.Services.Models;
 using Mediafon.SFTP.Services.Services;
 using Microsoft.Extensions.Options;
 using Renci.SshNet;
@@ -55,6 +56,45 @@ namespace Mediafon.SFTP.Services.Handlers
             {
                 throw new ArgumentException($"Failed to disconnect! {ex.Message}");
             }
+        }
+
+        public Task<bool> CheckFileAvailablility()
+        {
+
+            var files = sftp.ListDirectory(_sftpSettings.Value.SftpFolderLocation);
+            if (files.Any(a=> !a.Name.StartsWith('.')))
+            {
+                _logger.LogInformation($"{files.Count(a => !a.Name.StartsWith('.'))} new file found in remote directory");
+                return Task.FromResult(true);
+            }
+            else
+                return Task.FromResult(false);
+        }
+
+        public Task<List<SftpFileInfo>> ProcessFile()
+        {
+            List<SftpFileInfo> sftpFileInfos = new List<SftpFileInfo>();
+
+            var files = sftp.ListDirectory(_sftpSettings.Value.SftpFolderLocation);
+
+            foreach (var file in files.Where(a => !a.Name.StartsWith('.')))
+            {
+                string remoteFileName = file.Name;
+
+                using (Stream file1 = File.OpenWrite(_sftpSettings.Value.LocalFolderLocation + "/Downloads/" + remoteFileName))
+                {
+                    sftp.DownloadFile(remoteFileName, file1);
+                }
+                var sftpFileInfo = new SftpFileInfo
+                {
+                    FileName = remoteFileName,
+                    FilePath = _sftpSettings.Value.LocalFolderLocation + remoteFileName,
+                    MovingTime = DateTime.UtcNow,
+                    Id = Guid.NewGuid().ToString(),
+                };
+                sftpFileInfos.Add(sftpFileInfo);
+            }
+            return Task.FromResult(sftpFileInfos);
         }
        
     }

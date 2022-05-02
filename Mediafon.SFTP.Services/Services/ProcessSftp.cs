@@ -20,7 +20,13 @@ namespace Mediafon.SFTP.Services.Services
         }
         public async Task<bool> FindFilesInSftp()
         {
+            bool IsNewFileAvailable = false;
             bool connected = await _handler.Connect();
+            if (connected)
+               IsNewFileAvailable = await _handler.CheckFileAvailablility();
+            if (IsNewFileAvailable)
+                await _handler.ProcessFile();
+
             return connected;
         }
 
