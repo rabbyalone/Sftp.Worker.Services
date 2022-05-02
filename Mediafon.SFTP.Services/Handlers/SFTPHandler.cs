@@ -12,10 +12,11 @@ namespace Mediafon.SFTP.Services.Handlers
     {
         private readonly IOptions<SftpSettings> _sftpSettings;
         private readonly ILogger<ProcessSftp> _logger;
+        private readonly IHostEnvironment _hostingEnv;
         private SftpClient sftp;
         public bool Connected { get { return sftp.IsConnected; } }
 
-        public SFTPHandler(IOptions<SftpSettings> sftpSettings, ILogger<ProcessSftp> logger)
+        public SFTPHandler(IOptions<SftpSettings> sftpSettings, ILogger<ProcessSftp> logger, IHostEnvironment hostingEnv)
         {
             _sftpSettings = sftpSettings;
             _logger = logger;
@@ -23,6 +24,7 @@ namespace Mediafon.SFTP.Services.Handlers
                         _sftpSettings.Value.UserName,
                         new PasswordAuthenticationMethod(_sftpSettings.Value.UserName, _sftpSettings.Value.Password));
             sftp = new SftpClient(connectionInfo);
+            _hostingEnv = hostingEnv;
         }
         public Task<bool> Connect()
         {
@@ -75,24 +77,33 @@ namespace Mediafon.SFTP.Services.Handlers
         {
             List<SftpFileInfo> sftpFileInfos = new List<SftpFileInfo>();
 
-            var files = sftp.ListDirectory(_sftpSettings.Value.SftpFolderLocation);
-
-            foreach (var file in files.Where(a => !a.Name.StartsWith('.')))
+            try
             {
-                string remoteFileName = file.Name;
+                var files = sftp.ListDirectory(_sftpSettings.Value.SftpFolderLocation);
 
-                using (Stream file1 = File.OpenWrite(_sftpSettings.Value.LocalFolderLocation + "/Downloads/" + remoteFileName))
+                string localPath = $"{_hostingEnv.ContentRootPath}/{_sftpSettings.Value.LocalFolderLocation}";
+
+                foreach (var file in files.Where(a => !a.Name.StartsWith('.')))
                 {
-                    sftp.DownloadFile(remoteFileName, file1);
+                    string remoteFileName = file.Name;
+
+                    using (Stream file1 = File.OpenWrite($"{localPath}/{remoteFileName}"))
+                    {
+                        sftp.DownloadFile(remoteFileName, file1);
+                    }
+                    var sftpFileInfo = new SftpFileInfo
+                    {
+                        FileName = remoteFileName,
+                        FilePath = $"{localPath}/{remoteFileName}",
+                        MovingTime = file.,
+                        Id = Guid.NewGuid().ToString(),
+                    };
+                    sftpFileInfos.Add(sftpFileInfo);
                 }
-                var sftpFileInfo = new SftpFileInfo
-                {
-                    FileName = remoteFileName,
-                    FilePath = _sftpSettings.Value.LocalFolderLocation + remoteFileName,
-                    MovingTime = DateTime.UtcNow,
-                    Id = Guid.NewGuid().ToString(),
-                };
-                sftpFileInfos.Add(sftpFileInfo);
+            }
+            catch (Exception ex)
+            {
+                throw;
             }
             return Task.FromResult(sftpFileInfos);
         }

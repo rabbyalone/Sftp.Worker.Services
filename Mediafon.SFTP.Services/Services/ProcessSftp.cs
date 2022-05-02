@@ -25,7 +25,13 @@ namespace Mediafon.SFTP.Services.Services
             if (connected)
                IsNewFileAvailable = await _handler.CheckFileAvailablility();
             if (IsNewFileAvailable)
-                await _handler.ProcessFile();
+            {
+                List<SftpFileInfo> sftpFileInfos = await _handler.ProcessFile();
+                foreach (SftpFileInfo fileInfo in sftpFileInfos)
+                {
+                    await _repo.CreateAsync(fileInfo);
+                }
+            }
 
             return connected;
         }
