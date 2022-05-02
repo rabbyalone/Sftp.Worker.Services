@@ -52,6 +52,8 @@ namespace Mediafon.SFTP.Services.Handlers
                 if (sftp != null && Connected)
                 {
                     sftp.Disconnect();
+                    _logger.LogInformation("Server Disconnected!!!");
+
                 }
             }
             catch (Exception ex)
@@ -81,21 +83,21 @@ namespace Mediafon.SFTP.Services.Handlers
             {
                 var files = sftp.ListDirectory(_sftpSettings.Value.SftpFolderLocation);
 
-                string localPath = $"{_hostingEnv.ContentRootPath}/{_sftpSettings.Value.LocalFolderLocation}";
+                string localPath = $"{_hostingEnv.ContentRootPath}/{_sftpSettings.Value.LocalFolderLocation}/";
 
                 foreach (var file in files.Where(a => !a.Name.StartsWith('.')))
                 {
                     string remoteFileName = file.Name;
 
-                    using (Stream file1 = File.OpenWrite($"{localPath}/{remoteFileName}"))
+                    using (Stream file1 = File.OpenWrite(localPath + remoteFileName))
                     {
-                        sftp.DownloadFile(remoteFileName, file1);
+                        sftp.DownloadFile(_sftpSettings.Value.SftpFolderLocation + remoteFileName, file1);
                     }
                     var sftpFileInfo = new SftpFileInfo
                     {
                         FileName = remoteFileName,
                         FilePath = $"{localPath}/{remoteFileName}",
-                        MovingTime = file.,
+                        MovingTime = file.LastWriteTimeUtc,
                         Id = Guid.NewGuid().ToString(),
                     };
                     sftpFileInfos.Add(sftpFileInfo);

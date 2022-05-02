@@ -6,7 +6,6 @@ namespace Mediafon.SFTP.Services
     {
         private readonly ILogger<SFTPWorker> _logger;
         private readonly IServiceProvider _serviceProvider ;
-        private IProcessSftp _readSftp;
 
 
         public SFTPWorker(ILogger<SFTPWorker> logger, IServiceProvider serviceProvider, IProcessSftp readSftp)
@@ -22,12 +21,10 @@ namespace Mediafon.SFTP.Services
                 _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
 
                 using var scope = _serviceProvider.CreateScope();
-                _readSftp = scope.ServiceProvider.GetRequiredService<IProcessSftp>();
-                await _readSftp.FindFilesInSftp();
+                IProcessSftp _processSftpFiles = scope.ServiceProvider.GetRequiredService<IProcessSftp>();
+                await _processSftpFiles.ProcessFiles();
 
-                await Task.Delay(1000, stoppingToken);
-
-                
+                await Task.Delay(1000, stoppingToken);                
             }
         }
     }

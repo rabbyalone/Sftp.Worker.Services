@@ -18,36 +18,37 @@ namespace Mediafon.SFTP.Services.Services
             _repo = repo;
             _handler = handler;
         }
-        public async Task<bool> FindFilesInSftp()
+        public async Task<bool> ProcessFiles()
         {
-            bool IsNewFileAvailable = false;
-            bool connected = await _handler.Connect();
-            if (connected)
-               IsNewFileAvailable = await _handler.CheckFileAvailablility();
-            if (IsNewFileAvailable)
+            try
             {
-                List<SftpFileInfo> sftpFileInfos = await _handler.ProcessFile();
-                foreach (SftpFileInfo fileInfo in sftpFileInfos)
+                bool IsNewFileAvailable = false;
+
+                //connecting server
+                bool connected = await _handler.Connect();
+
+                if (connected)
+                    IsNewFileAvailable = await _handler.CheckFileAvailablility();
+
+                if (IsNewFileAvailable)
                 {
-                    await _repo.CreateAsync(fileInfo);
+                    //download sftp file into local location and return all file info for db entry
+                    List<SftpFileInfo> sftpFileInfos = await _handler.ProcessFile();
+                    foreach (SftpFileInfo fileInfo in sftpFileInfos)
+                    {
+                        await _repo.CreateAsync(fileInfo);
+                    }
                 }
+
+                //disconnect
+                _handler.Disconnect();
+                return true;
             }
-
-            return connected;
-        }
-
-        public async Task<bool> CheckDb()
-        {
-            var sf = new SftpFileInfo
+            catch (Exception ex)
             {
-                FileName = "Test",
-                FilePath = "hfadsl",
-                MovingTime = DateTime.Today,
-                Id = Guid.NewGuid().ToString()
-            };
-            await _repo.CreateAsync(sf);
-
-            return await FindFilesInSftp();
+                return false;
+                throw new ApplicationException($"Something went wrong! {ex.Message}");
+            }
         }
     }
 }
