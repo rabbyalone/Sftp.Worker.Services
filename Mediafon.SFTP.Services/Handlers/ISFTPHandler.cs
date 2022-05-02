@@ -8,6 +8,6 @@ namespace Mediafon.SFTP.Services.Handlers
         Task<bool> Connect();
         void Disconnect();
         Task<bool> CheckFileAvailablility(DateTime lastWriteDate);
-        Task<List<SftpFileInfo>> ProcessFile();
+        Task<List<SftpFileInfo>> ProcessFile(DateTime lastFileWriteDate);
     }
 }

@@ -97,7 +97,6 @@ namespace Mediafon.SFTP.Services.Repositories
             if (_context != null)
             {
                 _context.Dispose();
-                _context = null;
             }
             GC.SuppressFinalize(this);
         }

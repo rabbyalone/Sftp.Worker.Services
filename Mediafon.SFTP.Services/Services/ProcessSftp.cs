@@ -23,6 +23,7 @@ namespace Mediafon.SFTP.Services.Services
             try
             {
                 bool IsNewFileAvailable = false;
+                DateTime lastWriteDate = await GetLastFileWriteTime();
 
                 //connecting server
                 bool connected = await _handler.Connect();
@@ -30,14 +31,16 @@ namespace Mediafon.SFTP.Services.Services
                 if (connected)
                 {
                     //checking for new file in sftp 
-                    DateTime lastWriteDate = await GetLastFileWriteTime();
                     IsNewFileAvailable = await _handler.CheckFileAvailablility(lastWriteDate);
                 }
 
                 if (IsNewFileAvailable)
                 {
                     //download sftp file into local location and return all file info for db entry
-                    List<SftpFileInfo> sftpFileInfos = await _handler.ProcessFile();
+                    List<SftpFileInfo> sftpFileInfos = await _handler.ProcessFile(lastWriteDate);
+
+                    //Db entry of downloaded files
+
                     foreach (SftpFileInfo fileInfo in sftpFileInfos)
                     {
                         await _repo.CreateAsync(fileInfo);

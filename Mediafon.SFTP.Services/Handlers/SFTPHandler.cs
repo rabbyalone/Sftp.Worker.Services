@@ -78,7 +78,7 @@ namespace Mediafon.SFTP.Services.Handlers
             }
         }
 
-        public Task<List<SftpFileInfo>> ProcessFile()
+        public Task<List<SftpFileInfo>> ProcessFile(DateTime lastFileWriteDate)
         {
             List<SftpFileInfo> sftpFileInfos = new List<SftpFileInfo>();
 
@@ -88,7 +88,7 @@ namespace Mediafon.SFTP.Services.Handlers
 
                 string localPath = $"{_hostingEnv.ContentRootPath}/{_sftpSettings.Value.LocalFolderLocation}/";
 
-                foreach (var file in files.Where(a => !a.Name.StartsWith('.')))
+                foreach (var file in files.Where(a => !a.Name.StartsWith('.') && a.LastWriteTimeUtc > lastFileWriteDate))
                 {
                     string remoteFileName = file.Name;
 
@@ -111,7 +111,7 @@ namespace Mediafon.SFTP.Services.Handlers
             }
             catch (Exception ex)
             {
-                throw;
+                throw new ArgumentException($"Problem in downloading file {ex.Message}");
             }
             return Task.FromResult(sftpFileInfos);
         }
