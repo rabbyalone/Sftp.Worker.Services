@@ -5,6 +5,7 @@ using Mediafon.SFTP.Services.Models;
 using Mediafon.SFTP.Services.Services;
 using Microsoft.Extensions.Options;
 using Renci.SshNet;
+using Renci.SshNet.Sftp;
 
 namespace Mediafon.SFTP.Services.Handlers
 {
@@ -62,33 +63,32 @@ namespace Mediafon.SFTP.Services.Handlers
             }
         }
 
-        public Task<bool> CheckFileAvailablility(DateTime lastFileWriteDate)
+        public Task<IEnumerable<SftpFile>> CheckFileAvailablility(DateTime lastFileWriteDate)
         {
 
             var files = sftp.ListDirectory(_sftpSettings.Value.SftpFolderLocation);
             if (files.Any(a => !a.Name.StartsWith('.') && a.LastWriteTimeUtc > lastFileWriteDate))
             {
                 _logger.LogInformation($"{files.Count(a => !a.Name.StartsWith('.') && a.LastWriteTimeUtc > lastFileWriteDate)} new file found in remote directory");
-                return Task.FromResult(true);
             }
             else
             {
                 _logger.LogInformation($"{files.Count(a => !a.Name.StartsWith('.') && a.LastWriteTimeUtc > lastFileWriteDate)} new file found in remote directory");
-                return Task.FromResult(false);
             }
+
+            return Task.FromResult(files.Where(a => !a.Name.StartsWith('.') && a.LastWriteTimeUtc > lastFileWriteDate).AsEnumerable());
         }
 
-        public Task<List<SftpFileInfo>> ProcessFile(DateTime lastFileWriteDate)
+        public Task<List<SftpFileInfo>> DownloadFiles(IEnumerable<SftpFile> sftpFiles)
         {
             List<SftpFileInfo> sftpFileInfos = new List<SftpFileInfo>();
 
             try
             {
-                var files = sftp.ListDirectory(_sftpSettings.Value.SftpFolderLocation);
 
                 string localPath = $"{_hostingEnv.ContentRootPath}/{_sftpSettings.Value.LocalFolderLocation}/";
 
-                foreach (var file in files.Where(a => !a.Name.StartsWith('.') && a.LastWriteTimeUtc > lastFileWriteDate))
+                foreach (var file in sftpFiles)
                 {
                     string remoteFileName = file.Name;
 

@@ -6,6 +6,7 @@ using Mediafon.SFTP.Services.Models;
 using Mediafon.SFTP.Services.Repositories;
 using Microsoft.Extensions.Options;
 using Renci.SshNet;
+using Renci.SshNet.Sftp;
 
 namespace Mediafon.SFTP.Services.Services
 {
@@ -22,30 +23,31 @@ namespace Mediafon.SFTP.Services.Services
         {
             try
             {
-                bool IsNewFileAvailable = false;
-                DateTime lastWriteDate = await GetLastFileWriteTime();
+                IEnumerable<SftpFile> sftpFiles;
 
                 //connecting server
                 bool connected = await _handler.Connect();
 
                 if (connected)
                 {
+                    //getting last file entry time from database
+                    DateTime lastWriteDate = await GetLastFileWriteTime();
+
                     //checking for new file in sftp 
-                    IsNewFileAvailable = await _handler.CheckFileAvailablility(lastWriteDate);
-                }
+                    sftpFiles = await _handler.CheckFileAvailablility(lastWriteDate);
 
-                if (IsNewFileAvailable)
-                {
-                    //download sftp file into local location and return all file info for db entry
-                    List<SftpFileInfo> sftpFileInfos = await _handler.ProcessFile(lastWriteDate);
-
-                    //Db entry of downloaded files
-
-                    foreach (SftpFileInfo fileInfo in sftpFileInfos)
+                    if(sftpFiles.Any())
                     {
-                        await _repo.CreateAsync(fileInfo);
+                        //download sftp file into local location and return all file info for db entry
+                        List<SftpFileInfo> sftpFileInfos = await _handler.DownloadFiles(sftpFiles);
+
+                        //Db entry of downloaded sftpFiles
+                        foreach (SftpFileInfo fileInfo in sftpFileInfos)
+                        {
+                            await _repo.CreateAsync(fileInfo);
+                        }
                     }
-                }       
+                }     
                
                 //disconnect
                 _handler.Disconnect();

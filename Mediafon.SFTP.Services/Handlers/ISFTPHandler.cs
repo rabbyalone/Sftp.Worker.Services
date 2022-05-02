@@ -1,5 +1,6 @@
 ﻿
 using Mediafon.SFTP.Services.Models;
+using Renci.SshNet.Sftp;
 
 namespace Mediafon.SFTP.Services.Handlers
 {
@@ -7,7 +8,7 @@ namespace Mediafon.SFTP.Services.Handlers
     {
         Task<bool> Connect();
         void Disconnect();
-        Task<bool> CheckFileAvailablility(DateTime lastWriteDate);
-        Task<List<SftpFileInfo>> ProcessFile(DateTime lastFileWriteDate);
+        Task<IEnumerable<SftpFile>> CheckFileAvailablility(DateTime lastFileWriteDate);
+        Task<List<SftpFileInfo>> DownloadFiles(IEnumerable<SftpFile> sftpFiles);
     }
 }
