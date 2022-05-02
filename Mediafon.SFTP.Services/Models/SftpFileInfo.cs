@@ -8,9 +8,12 @@ namespace Mediafon.SFTP.Services.Models
     {
         [Key]
         public string? Id { get; set; }
-        public string? FilePath { get; set; }
+        public string? RemoteFilePath { get; set; }
+        public string? LocalFilePath { get; set; }
         public string? FileName { get; set; }
-        public DateTime? MovingTime { get; set; }
+        public DateTime? FileDowloadTime { get; set; }
+        public DateTime? LastWriteTime { get; set; }
+        public DateTime? LastAccessTime { get; set; }
 
 
     }

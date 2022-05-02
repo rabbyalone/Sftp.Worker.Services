@@ -1,5 +1,6 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 using System.Transactions;
 
 namespace Mediafon.SFTP.Services.Repositories
@@ -23,6 +24,23 @@ namespace Mediafon.SFTP.Services.Repositories
                 value = _context.Set<TEntity>();
             }
         }
+
+       
+
+        public async Task<IEnumerable<TEntity>> GetAllAsync()
+        {
+            return await DbSet.AsNoTracking().ToListAsync();
+        }
+
+        public async Task<TEntity> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate)
+        {
+           var data = await DbSet.FirstOrDefaultAsync(predicate);
+           if (data == null)
+                return Activator.CreateInstance<TEntity>();
+           else
+                return data;
+        }
+
         public async Task<TEntity> CreateAsync(TEntity entity)
         {
             DbSet.Add(entity);
@@ -83,5 +101,7 @@ namespace Mediafon.SFTP.Services.Repositories
             }
             GC.SuppressFinalize(this);
         }
+
+
     }
 }

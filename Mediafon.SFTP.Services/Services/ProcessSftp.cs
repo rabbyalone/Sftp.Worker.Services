@@ -28,7 +28,11 @@ namespace Mediafon.SFTP.Services.Services
                 bool connected = await _handler.Connect();
 
                 if (connected)
-                    IsNewFileAvailable = await _handler.CheckFileAvailablility();
+                {
+                    //checking for new file in sftp 
+                    DateTime lastWriteDate = await GetLastFileWriteTime();
+                    IsNewFileAvailable = await _handler.CheckFileAvailablility(lastWriteDate);
+                }
 
                 if (IsNewFileAvailable)
                 {
@@ -38,8 +42,8 @@ namespace Mediafon.SFTP.Services.Services
                     {
                         await _repo.CreateAsync(fileInfo);
                     }
-                }
-
+                }       
+               
                 //disconnect
                 _handler.Disconnect();
                 return true;
@@ -49,6 +53,13 @@ namespace Mediafon.SFTP.Services.Services
                 return false;
                 throw new ApplicationException($"Something went wrong! {ex.Message}");
             }
+        }
+
+        private async Task<DateTime> GetLastFileWriteTime()
+        {
+            var allFileDataFromDb = await _repo.GetAllAsync();
+            var maxFileWritingDate =  allFileDataFromDb.OrderByDescending(a => a.LastWriteTime).FirstOrDefault()?.LastWriteTime;
+            return maxFileWritingDate ?? DateTime.MinValue;
         }
     }
 }

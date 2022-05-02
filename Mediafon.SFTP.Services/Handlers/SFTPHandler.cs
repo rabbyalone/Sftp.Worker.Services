@@ -62,17 +62,20 @@ namespace Mediafon.SFTP.Services.Handlers
             }
         }
 
-        public Task<bool> CheckFileAvailablility()
+        public Task<bool> CheckFileAvailablility(DateTime lastFileWriteDate)
         {
 
             var files = sftp.ListDirectory(_sftpSettings.Value.SftpFolderLocation);
-            if (files.Any(a=> !a.Name.StartsWith('.')))
+            if (files.Any(a => !a.Name.StartsWith('.') && a.LastWriteTimeUtc > lastFileWriteDate))
             {
-                _logger.LogInformation($"{files.Count(a => !a.Name.StartsWith('.'))} new file found in remote directory");
+                _logger.LogInformation($"{files.Count(a => !a.Name.StartsWith('.') && a.LastWriteTimeUtc > lastFileWriteDate)} new file found in remote directory");
                 return Task.FromResult(true);
             }
             else
+            {
+                _logger.LogInformation($"{files.Count(a => !a.Name.StartsWith('.') && a.LastWriteTimeUtc > lastFileWriteDate)} new file found in remote directory");
                 return Task.FromResult(false);
+            }
         }
 
         public Task<List<SftpFileInfo>> ProcessFile()
@@ -96,8 +99,11 @@ namespace Mediafon.SFTP.Services.Handlers
                     var sftpFileInfo = new SftpFileInfo
                     {
                         FileName = remoteFileName,
-                        FilePath = $"{localPath}/{remoteFileName}",
-                        MovingTime = file.LastWriteTimeUtc,
+                        LocalFilePath = $"{localPath}/{remoteFileName}",
+                        LastWriteTime = file.LastWriteTimeUtc,
+                        LastAccessTime = file.LastAccessTime,
+                        FileDowloadTime = DateTime.UtcNow,
+                        RemoteFilePath = _sftpSettings.Value.SftpFolderLocation,
                         Id = Guid.NewGuid().ToString(),
                     };
                     sftpFileInfos.Add(sftpFileInfo);
