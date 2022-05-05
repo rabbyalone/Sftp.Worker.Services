@@ -24,6 +24,7 @@ namespace Mediafon.SFTP.Services
                 IProcessSftp _processSftpFiles = scope.ServiceProvider.GetRequiredService<IProcessSftp>();
                 await _processSftpFiles.ProcessFiles();
 
+                //Start every 1 minute interval
                 await Task.Delay(60000, stoppingToken);                
             }
         }

@@ -28,7 +28,7 @@ namespace Mediafon.SFTP.Services.Services
             {
                 IEnumerable<SftpFile> sftpFiles;
 
-                //connecting server
+                //connecting to the sftp server
                 bool connected = await _handler.Connect();
 
                 if (connected)

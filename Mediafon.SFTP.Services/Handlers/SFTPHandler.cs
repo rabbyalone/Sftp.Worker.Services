@@ -33,6 +33,10 @@ namespace Mediafon.SFTP.Services.Handlers
             {
                 if (!Connected)
                 {
+                    if (string.IsNullOrEmpty(_sftpSettings.Value.UserName)
+                        && string.IsNullOrEmpty(_sftpSettings.Value.Password) && string.IsNullOrEmpty(_sftpSettings.Value.SftpServer))
+                        throw new ArgumentException("Sever name, username and password are required to start application!");
+
                     sftp.Connect();
                     _logger.LogInformation("Connection established!");
                 }
@@ -53,7 +57,7 @@ namespace Mediafon.SFTP.Services.Handlers
                 if (sftp != null && Connected)
                 {
                     sftp.Disconnect();
-                    _logger.LogInformation("Server Disconnected!!!");
+                    _logger.LogInformation("Server Disconnected!!!=============\r\n");
 
                 }
             }
@@ -65,18 +69,24 @@ namespace Mediafon.SFTP.Services.Handlers
 
         public Task<IEnumerable<SftpFile>> CheckFileAvailablility(DateTime lastFileWriteDate)
         {
+            if (string.IsNullOrEmpty(_sftpSettings.Value.SftpFolderLocation))
+                throw new ArgumentException("No remote folder location is specified");
 
             var files = sftp.ListDirectory(_sftpSettings.Value.SftpFolderLocation);
-            if (files.Any(a => !a.Name.StartsWith('.') && a.LastWriteTimeUtc > lastFileWriteDate))
+
+            //checked against last db entry time and removed server files
+            Func<SftpFile, bool> checkingCondition = a => !a.Name.StartsWith('.') && a.LastWriteTimeUtc > lastFileWriteDate;
+
+            if (files.Any(checkingCondition))
             {
-                _logger.LogInformation($"{files.Count(a => !a.Name.StartsWith('.') && a.LastWriteTimeUtc > lastFileWriteDate)} new file found in remote directory");
+                _logger.LogInformation($"{files.Count(checkingCondition)} new file found in remote directory");
             }
             else
             {
-                _logger.LogInformation($"{files.Count(a => !a.Name.StartsWith('.') && a.LastWriteTimeUtc > lastFileWriteDate)} new file found in remote directory");
+                _logger.LogInformation($"{files.Count(checkingCondition)} new file found in remote directory");
             }
 
-            return Task.FromResult(files.Where(a => !a.Name.StartsWith('.') && a.LastWriteTimeUtc > lastFileWriteDate).AsEnumerable());
+            return Task.FromResult(files.Where(checkingCondition).AsEnumerable());
         }
 
         public Task<List<SftpFileInfo>> DownloadFiles(IEnumerable<SftpFile> sftpFiles)
@@ -92,11 +102,15 @@ namespace Mediafon.SFTP.Services.Handlers
                 {
                     string remoteFileName = file.Name;
 
+                    //started downloading 
                     using (Stream file1 = File.OpenWrite(localPath + remoteFileName))
                     {
+                        _logger.LogInformation($"File download started...");
                         sftp.DownloadFile(_sftpSettings.Value.SftpFolderLocation + remoteFileName, file1);
-                        _logger.LogInformation($"File downloaded at {localPath}");
+                        _logger.LogInformation($"{remoteFileName} downloaded at {localPath}");
                     }
+
+                    //building models with file info
                     var sftpFileInfo = new SftpFileInfo
                     {
                         FileName = remoteFileName,
@@ -107,6 +121,7 @@ namespace Mediafon.SFTP.Services.Handlers
                         RemoteFilePath = _sftpSettings.Value.SftpFolderLocation,
                         Id = Guid.NewGuid().ToString(),
                     };
+
                     sftpFileInfos.Add(sftpFileInfo);
                 }
             }

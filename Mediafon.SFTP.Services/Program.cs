@@ -21,6 +21,7 @@ AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel
         .Information()
+        .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", Serilog.Events.LogEventLevel.Warning)
     .WriteTo
         .Console()
         .CreateLogger();
