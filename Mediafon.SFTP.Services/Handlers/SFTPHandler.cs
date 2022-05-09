@@ -11,19 +11,19 @@ namespace Mediafon.SFTP.Services.Handlers
 {
     public class SFTPHandler : ISFTPHandler
     {
-        private readonly IOptions<SftpSettings> _sftpSettings;
+        private readonly SftpSettings _sftpSettings;
         private readonly ILogger<SFTPHandler> _logger;
         private readonly IHostEnvironment _hostingEnv;
         private SftpClient sftp;
         public bool Connected { get { return sftp.IsConnected; } }
 
-        public SFTPHandler(IOptions<SftpSettings> sftpSettings, ILogger<SFTPHandler> logger, IHostEnvironment hostingEnv)
+        public SFTPHandler(IOptionsSnapshot<SftpSettings> sftpSettings, ILogger<SFTPHandler> logger, IHostEnvironment hostingEnv)
         {
-            _sftpSettings = sftpSettings;
+            _sftpSettings = sftpSettings.Value;
             _logger = logger;
-            var connectionInfo = new ConnectionInfo(_sftpSettings.Value.SftpServer,
-                        _sftpSettings.Value.UserName,
-                        new PasswordAuthenticationMethod(_sftpSettings.Value.UserName, _sftpSettings.Value.Password));
+            var connectionInfo = new ConnectionInfo(_sftpSettings.SftpServer,
+                        _sftpSettings.UserName,
+                        new PasswordAuthenticationMethod(_sftpSettings.UserName, _sftpSettings.Password));
             sftp = new SftpClient(connectionInfo);
             _hostingEnv = hostingEnv;
         }
@@ -33,8 +33,8 @@ namespace Mediafon.SFTP.Services.Handlers
             {
                 if (!Connected)
                 {
-                    if (string.IsNullOrEmpty(_sftpSettings.Value.UserName)
-                        && string.IsNullOrEmpty(_sftpSettings.Value.Password) && string.IsNullOrEmpty(_sftpSettings.Value.SftpServer))
+                    if (string.IsNullOrEmpty(_sftpSettings.UserName)
+                        && string.IsNullOrEmpty(_sftpSettings.Password) && string.IsNullOrEmpty(_sftpSettings.SftpServer))
                         throw new ArgumentException("Sever name, username and password are required to start application!");
 
                     sftp.Connect();
@@ -69,10 +69,10 @@ namespace Mediafon.SFTP.Services.Handlers
 
         public Task<IEnumerable<SftpFile>> CheckFileAvailablility(DateTime lastFileWriteDate)
         {
-            if (string.IsNullOrEmpty(_sftpSettings.Value.SftpFolderLocation))
+            if (string.IsNullOrEmpty(_sftpSettings.SftpFolderLocation))
                 throw new ArgumentException("No remote folder location is specified");
 
-            var files = sftp.ListDirectory(_sftpSettings.Value.SftpFolderLocation);
+            var files = sftp.ListDirectory(_sftpSettings.SftpFolderLocation);
 
             //checked against last db entry time and removed server files
             Func<SftpFile, bool> checkingCondition = a => !a.Name.StartsWith('.') && a.LastWriteTimeUtc > lastFileWriteDate;
@@ -96,7 +96,7 @@ namespace Mediafon.SFTP.Services.Handlers
             try
             {
 
-                string localPath = $"{_hostingEnv.ContentRootPath}/{_sftpSettings.Value.LocalFolderLocation}/";
+                string localPath = $"{_hostingEnv.ContentRootPath}/{_sftpSettings.LocalFolderLocation}/";
 
                 foreach (var file in sftpFiles)
                 {
@@ -106,7 +106,7 @@ namespace Mediafon.SFTP.Services.Handlers
                     using (Stream file1 = File.OpenWrite(localPath + remoteFileName))
                     {
                         _logger.LogInformation($"File download started...");
-                        sftp.DownloadFile(_sftpSettings.Value.SftpFolderLocation + remoteFileName, file1);
+                        sftp.DownloadFile(_sftpSettings.SftpFolderLocation + remoteFileName, file1);
                         _logger.LogInformation($"{remoteFileName} downloaded at {localPath}");
                     }
 
@@ -118,7 +118,7 @@ namespace Mediafon.SFTP.Services.Handlers
                         LastWriteTime = file.LastWriteTimeUtc,
                         LastAccessTime = file.LastAccessTimeUtc,
                         FileDowloadTime = DateTime.UtcNow,
-                        RemoteFilePath = _sftpSettings.Value.SftpFolderLocation,
+                        RemoteFilePath = _sftpSettings.SftpFolderLocation,
                         Id = Guid.NewGuid().ToString(),
                     };
 
