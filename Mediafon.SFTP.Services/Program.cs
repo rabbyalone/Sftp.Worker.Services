@@ -51,15 +51,15 @@ IHost host = Host.CreateDefaultBuilder(args)
 
             //DI
 
-            services.AddTransient<DbContext, SftpInfoDb>();
+            services.AddScoped<IProcessSftp, ProcessSftp>();
+            services.AddScoped<DbContext, SftpInfoDb>();
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<ISFTPHandler, SFTPHandler>();
-            services.AddScoped<IProcessSftp, ProcessSftp>();
 
 
         })
     .UseSerilog()
-    .UseDefaultServiceProvider(options => options.ValidateScopes = false)
+    //.UseDefaultServiceProvider(options => options.ValidateScopes = false)
     .Build();
 
 

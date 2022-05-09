@@ -8,7 +8,7 @@ namespace Mediafon.SFTP.Services
         private readonly IServiceProvider _serviceProvider ;
 
 
-        public SFTPWorker(ILogger<SFTPWorker> logger, IServiceProvider serviceProvider, IProcessSftp readSftp)
+        public SFTPWorker(ILogger<SFTPWorker> logger, IServiceProvider serviceProvider)
         {
             _logger = logger;
             _serviceProvider = serviceProvider;

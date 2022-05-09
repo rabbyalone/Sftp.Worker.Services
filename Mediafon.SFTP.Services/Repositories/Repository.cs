@@ -1,16 +1,17 @@
 ﻿
+using Mediafon.SFTP.Services.Context;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using System.Transactions;
 
 namespace Mediafon.SFTP.Services.Repositories
 {
-    public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
+    public class Repository<TEntity> :IRepository<TEntity> where TEntity : class
     {
-        private DbContext _context;
-        public Repository(DbContext context)
+        private readonly SftpInfoDb _context;
+        public Repository(SftpInfoDb context)
         {
-            _context = context;
+            _context =  context;
         }
 
         protected DbSet<TEntity> DbSet
@@ -23,9 +24,7 @@ namespace Mediafon.SFTP.Services.Repositories
             {
                 value = _context.Set<TEntity>();
             }
-        }
-
-       
+        }       
 
         public async Task<IEnumerable<TEntity>> GetAllAsync()
         {
