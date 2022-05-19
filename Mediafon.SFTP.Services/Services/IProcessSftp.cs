@@ -4,6 +4,6 @@ namespace Mediafon.SFTP.Services.Services
 {
     public interface IProcessSftp
     {
-        Task<bool> ProcessFiles();
+        Task ProcessFiles();
     }
 }

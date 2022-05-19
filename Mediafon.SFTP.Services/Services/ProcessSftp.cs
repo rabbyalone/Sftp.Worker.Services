@@ -22,7 +22,7 @@ namespace Mediafon.SFTP.Services.Services
             _handler = handler;
             _logger = logger;
         }
-        public async Task<bool> ProcessFiles()
+        public async Task ProcessFiles()
         {
             try
             {
@@ -47,6 +47,11 @@ namespace Mediafon.SFTP.Services.Services
                         //Db entry of downloaded sftpFiles
                         foreach (SftpFileInfo fileInfo in sftpFileInfos)
                         {
+                            if (string.IsNullOrEmpty(fileInfo.FileName))
+                                throw new ArgumentException("File name is required!");
+                            if (!fileInfo.LastAccessTime.HasValue)
+                                throw new ArgumentException("Last write time is required!");
+
                             var created = await _repo.CreateAsync(fileInfo);
                             _logger.LogInformation($"Created sftp file info entry in database with identifier {created.Id}");
 
@@ -56,11 +61,9 @@ namespace Mediafon.SFTP.Services.Services
                
                 //disconnect
                 _handler.Disconnect();
-                return true;
             }
             catch (Exception ex)
             {
-                return false;
                 throw new ApplicationException($"Something went wrong! {ex.Message}");
             }
         }

@@ -31,6 +31,7 @@ namespace Mediafon.SFTP.Services.Handlers
         {
             try
             {
+                bool IsConnected = false;   
                 if (!Connected)
                 {
                     if (string.IsNullOrEmpty(_sftpSettings.UserName)
@@ -39,13 +40,13 @@ namespace Mediafon.SFTP.Services.Handlers
 
                     sftp.Connect();
                     _logger.LogInformation("Connection established!");
+                    IsConnected = true;
                 }
-                return Task.FromResult(true);
+                return Task.FromResult(IsConnected);
 
             }
             catch (Exception ex)
             {
-                return Task.FromResult(false);
                 throw new ArgumentException($"Connection not established! {ex.Message}");
             }
         }
@@ -86,7 +87,7 @@ namespace Mediafon.SFTP.Services.Handlers
                 _logger.LogInformation($"{files.Count(checkingCondition)} new file found in remote directory");
             }
 
-            return Task.FromResult(files.Where(checkingCondition).AsEnumerable());
+            return Task.FromResult(files.Where(checkingCondition));
         }
 
         public Task<List<SftpFileInfo>> DownloadFiles(IEnumerable<SftpFile> sftpFiles)
@@ -111,9 +112,8 @@ namespace Mediafon.SFTP.Services.Handlers
                     }
 
                     //building models with file info
-                    var sftpFileInfo = new SftpFileInfo
-                    {
-                        FileName = remoteFileName,
+                    var sftpFileInfo = new SftpFileInfo(remoteFileName)
+                    {                        
                         LocalFilePath = $"{localPath}/{remoteFileName}",
                         LastWriteTime = file.LastWriteTimeUtc,
                         LastAccessTime = file.LastAccessTimeUtc,

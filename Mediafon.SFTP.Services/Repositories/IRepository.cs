@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 namespace Mediafon.SFTP.Services.Repositories
 {
-    public interface IRepository<TEntity>: IDisposable where TEntity : class
+    public interface IRepository<TEntity> where TEntity : class
     {
         Task<IEnumerable<TEntity>> GetAllAsync();
         Task<TEntity> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate);

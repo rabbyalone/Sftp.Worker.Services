@@ -20,9 +20,16 @@ namespace Mediafon.SFTP.Services
             {
                 _logger.LogInformation("Sftp service running at: {time}", DateTimeOffset.Now);
 
-                using var scope = _serviceProvider.CreateScope();
-                IProcessSftp _processSftpFiles = scope.ServiceProvider.GetRequiredService<IProcessSftp>();
-                await _processSftpFiles.ProcessFiles();
+                try
+                {
+                    using var scope = _serviceProvider.CreateScope();
+                    IProcessSftp _processSftpFiles = scope.ServiceProvider.GetRequiredService<IProcessSftp>();
+                    await _processSftpFiles.ProcessFiles();
+                }
+                catch (Exception ex)
+                {
+                    throw new ArgumentException(ex.Message);
+                }
 
                 //Start every 1 minute interval
                 await Task.Delay(60000, stoppingToken);                
