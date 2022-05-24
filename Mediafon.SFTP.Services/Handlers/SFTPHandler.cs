@@ -112,14 +112,12 @@ namespace Mediafon.SFTP.Services.Handlers
                     }
 
                     //building models with file info
-                    var sftpFileInfo = new SftpFileInfo(remoteFileName)
+                    var sftpFileInfo = new SftpFileInfo(remoteFileName, Guid.NewGuid().ToString(), file.LastWriteTimeUtc)
                     {                        
                         LocalFilePath = $"{localPath}/{remoteFileName}",
-                        LastWriteTime = file.LastWriteTimeUtc,
                         LastAccessTime = file.LastAccessTimeUtc,
                         FileDowloadTime = DateTime.UtcNow,
                         RemoteFilePath = _sftpSettings.SftpFolderLocation,
-                        Id = Guid.NewGuid().ToString(),
                     };
 
                     sftpFileInfos.Add(sftpFileInfo);
