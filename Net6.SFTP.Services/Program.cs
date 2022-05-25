@@ -41,7 +41,6 @@ IHost host = Host.CreateDefaultBuilder(args)
         .ConfigureServices((ctx, services) =>
         {
             services.AddHostedService<SFTPWorker>();
-            services.AddEntityFrameworkNpgsql();
             services.Configure<SftpSettings>(options => ctx.Configuration.GetSection("SftpSettings").Bind(options));
 
             //connectionstring

@@ -14,9 +14,9 @@ namespace Net6.SFTP.Services.Handlers
         private SftpClient sftp;
         public bool Connected { get { return sftp.IsConnected; } }
 
-        public SFTPHandler(IOptionsSnapshot<SftpSettings> sftpSettings, ILogger<SFTPHandler> logger, IHostEnvironment hostingEnv)
+        public SFTPHandler(IOptionsMonitor<SftpSettings> sftpSettings, ILogger<SFTPHandler> logger, IHostEnvironment hostingEnv)
         {
-            _sftpSettings = sftpSettings.Value;
+            _sftpSettings = sftpSettings.CurrentValue;
             _logger = logger;
             var connectionInfo = new ConnectionInfo(_sftpSettings.SftpServer,
                         _sftpSettings.UserName,
