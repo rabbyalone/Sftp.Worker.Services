@@ -1,13 +1,10 @@
-﻿
-
-using Mediafon.SFTP.Services.Config;
-using Mediafon.SFTP.Services.Models;
-using Mediafon.SFTP.Services.Services;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
+using Net6.SFTP.Services.Config;
+using Net6.SFTP.Services.Models;
 using Renci.SshNet;
 using Renci.SshNet.Sftp;
 
-namespace Mediafon.SFTP.Services.Handlers
+namespace Net6.SFTP.Services.Handlers
 {
     public class SFTPHandler : ISFTPHandler
     {
@@ -31,7 +28,7 @@ namespace Mediafon.SFTP.Services.Handlers
         {
             try
             {
-                bool IsConnected = false;   
+                bool IsConnected = false;
                 if (!Connected)
                 {
                     if (string.IsNullOrEmpty(_sftpSettings.UserName)
@@ -113,7 +110,7 @@ namespace Mediafon.SFTP.Services.Handlers
 
                     //building models with file info
                     var sftpFileInfo = new SftpFileInfo(remoteFileName, Guid.NewGuid().ToString(), file.LastWriteTimeUtc)
-                    {                        
+                    {
                         LocalFilePath = $"{localPath}/{remoteFileName}",
                         LastAccessTime = file.LastAccessTimeUtc,
                         FileDowloadTime = DateTime.UtcNow,
@@ -129,6 +126,6 @@ namespace Mediafon.SFTP.Services.Handlers
             }
             return Task.FromResult(sftpFileInfos);
         }
-       
+
     }
 }

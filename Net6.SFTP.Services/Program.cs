@@ -1,11 +1,10 @@
-using Mediafon.SFTP.Services;
-using Mediafon.SFTP.Services.Config;
-using Mediafon.SFTP.Services.Context;
-using Mediafon.SFTP.Services.Handlers;
-using Mediafon.SFTP.Services.Repositories;
-using Mediafon.SFTP.Services.Services;
 using Microsoft.EntityFrameworkCore;
-using Renci.SshNet;
+using Net6.SFTP.Services;
+using Net6.SFTP.Services.Config;
+using Net6.SFTP.Services.Context;
+using Net6.SFTP.Services.Handlers;
+using Net6.SFTP.Services.Repositories;
+using Net6.SFTP.Services.Services;
 using Serilog;
 
 

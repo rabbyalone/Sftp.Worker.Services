@@ -1,11 +1,11 @@
-using Mediafon.SFTP.Services.Services;
+using Net6.SFTP.Services.Services;
 
-namespace Mediafon.SFTP.Services
+namespace Net6.SFTP.Services
 {
     public class SFTPWorker : BackgroundService
     {
         private readonly ILogger<SFTPWorker> _logger;
-        private readonly IServiceProvider _serviceProvider ;
+        private readonly IServiceProvider _serviceProvider;
 
 
         public SFTPWorker(ILogger<SFTPWorker> logger, IServiceProvider serviceProvider)
@@ -32,7 +32,7 @@ namespace Mediafon.SFTP.Services
                 }
 
                 //Start every 1 minute interval
-                await Task.Delay(60000, stoppingToken);                
+                await Task.Delay(60000, stoppingToken);
             }
         }
     }

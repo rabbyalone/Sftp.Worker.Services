@@ -1,8 +1,6 @@
-﻿
+﻿using System.Linq.Expressions;
 
-using System.Linq.Expressions;
-
-namespace Mediafon.SFTP.Services.Repositories
+namespace Net6.SFTP.Services.Repositories
 {
     public interface IRepository<TEntity> where TEntity : class
     {

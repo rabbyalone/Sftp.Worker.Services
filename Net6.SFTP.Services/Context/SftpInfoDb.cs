@@ -1,11 +1,9 @@
-﻿
+﻿using Microsoft.EntityFrameworkCore;
+using Net6.SFTP.Services.Models;
 
-using Mediafon.SFTP.Services.Models;
-using Microsoft.EntityFrameworkCore;
-
-namespace Mediafon.SFTP.Services.Context
+namespace Net6.SFTP.Services.Context
 {
-    public class SftpInfoDb: DbContext
+    public class SftpInfoDb : DbContext
     {
         public SftpInfoDb(DbContextOptions<SftpInfoDb> options) : base(options)
         {

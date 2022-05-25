@@ -1,6 +1,4 @@
-﻿
-
-namespace Mediafon.SFTP.Services.Services
+﻿namespace Net6.SFTP.Services.Services
 {
     public interface IProcessSftp
     {

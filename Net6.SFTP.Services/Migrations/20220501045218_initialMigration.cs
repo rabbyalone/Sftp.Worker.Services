@@ -1,9 +1,8 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Mediafon.SFTP.Services.Migrations
+namespace Net6.SFTP.Services.Migrations
 {
     public partial class initialMigration : Migration
     {

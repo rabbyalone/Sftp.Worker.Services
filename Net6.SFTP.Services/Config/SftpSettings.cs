@@ -1,6 +1,4 @@
-﻿
-
-namespace Mediafon.SFTP.Services.Config
+﻿namespace Net6.SFTP.Services.Config
 {
     public class SftpSettings
     {

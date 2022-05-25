@@ -1,8 +1,7 @@
-﻿
-using Mediafon.SFTP.Services.Models;
+﻿using Net6.SFTP.Services.Models;
 using Renci.SshNet.Sftp;
 
-namespace Mediafon.SFTP.Services.Handlers
+namespace Net6.SFTP.Services.Handlers
 {
     public interface ISFTPHandler
     {

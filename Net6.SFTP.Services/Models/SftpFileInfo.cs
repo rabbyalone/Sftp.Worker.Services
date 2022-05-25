@@ -1,8 +1,6 @@
-﻿
+﻿using System.ComponentModel.DataAnnotations;
 
-using System.ComponentModel.DataAnnotations;
-
-namespace Mediafon.SFTP.Services.Models
+namespace Net6.SFTP.Services.Models
 {
     public class SftpFileInfo
     {

@@ -4,7 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>dotnet-Mediafon.SFTP.Services-85CC699D-65C0-4879-AA07-5EC4C994BED2</UserSecretsId>
+    <UserSecretsId>dotnet-Ne6.SFTP.Services-85CC699D-65C0-4879-AA07-5EC4C994BED2</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
 

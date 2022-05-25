@@ -1,14 +1,9 @@
-﻿
-
-using Mediafon.SFTP.Services.Config;
-using Mediafon.SFTP.Services.Handlers;
-using Mediafon.SFTP.Services.Models;
-using Mediafon.SFTP.Services.Repositories;
-using Microsoft.Extensions.Options;
-using Renci.SshNet;
+﻿using Net6.SFTP.Services.Handlers;
+using Net6.SFTP.Services.Models;
+using Net6.SFTP.Services.Repositories;
 using Renci.SshNet.Sftp;
 
-namespace Mediafon.SFTP.Services.Services
+namespace Net6.SFTP.Services.Services
 {
     public class ProcessSftp : IProcessSftp
     {
@@ -39,7 +34,7 @@ namespace Mediafon.SFTP.Services.Services
                     //checking for new file in sftp 
                     sftpFiles = await _handler.CheckFileAvailablility(lastWriteDate);
 
-                    if(sftpFiles.Any())
+                    if (sftpFiles.Any())
                     {
                         //download sftp file into local location and return all file info for db entry
                         List<SftpFileInfo> sftpFileInfos = await _handler.DownloadFiles(sftpFiles);
@@ -57,8 +52,8 @@ namespace Mediafon.SFTP.Services.Services
 
                         }
                     }
-                }     
-               
+                }
+
                 //disconnect
                 _handler.Disconnect();
             }
@@ -71,7 +66,7 @@ namespace Mediafon.SFTP.Services.Services
         private async Task<DateTime> GetLastFileWriteTime()
         {
             var allFileDataFromDb = await _repo.GetAllAsync();
-            var maxFileWritingDate =  allFileDataFromDb.OrderByDescending(a => a.LastWriteTime).FirstOrDefault()?.LastWriteTime;
+            var maxFileWritingDate = allFileDataFromDb.OrderByDescending(a => a.LastWriteTime).FirstOrDefault()?.LastWriteTime;
             return maxFileWritingDate ?? DateTime.MinValue;
         }
     }
