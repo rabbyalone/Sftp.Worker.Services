@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "Mediafon.SFTP.Services": {
+    "Net6.SFTP.Services": {
       "commandName": "Project",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development"
